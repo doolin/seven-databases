@@ -49,4 +49,29 @@ RSpec.describe self do
       expect(actual).to eq expected_vals
     end
   end
+
+  context 'lists' do
+    example 'rpush' do
+     key = 'eric:wishlist'
+     result = $redis.rpush(key, '7wks gog  prag')
+     expect(result).to eq 1 # why eq 1?
+
+     result = $redis.lrange(key, 0, -1)
+     expect(result).to eq ["7wks gog  prag"]
+
+
+      # $ redis-cli
+      # 127.0.0.1:6379> LRANGE eric:wishlist 0 -1
+      # 1) "baz"
+      # 2) "bar"
+      # 3) "foo"
+      # 4) "7wks gog  prag"
+      # 127.0.0.1:6379>
+     $redis.lpush(key, 'foo')
+     $redis.lpush(key, 'bar')
+     $redis.lpush(key, 'baz')
+     result = $redis.lrange(key, 0, -1)
+     expect(result).to eq ['baz', 'bar', 'foo', "7wks gog  prag"]
+    end
+  end
 end

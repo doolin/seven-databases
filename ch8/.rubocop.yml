@@ -3,3 +3,18 @@ inherit_from: .rubocop_todo.yml
 Style/GlobalVars:
   Exclude:
     - './redis-test.rb'
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true

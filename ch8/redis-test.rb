@@ -9,15 +9,17 @@ $redis.flushall
 # $redis.set 'foo', 'bar'
 
 RSpec.describe self do
-  example 'set a key' do
-    key = 'foo'
-    value = 'bar'
-    $redis.set key, value
-    expected = $redis.get(key)
-    expect(expected).to eq value
+  describe 'set/get' do
+    example 'set a key' do
+      key = 'foo'
+      value = 'bar'
+      $redis.set key, value
+      expected = $redis.get(key)
+      expect(expected).to eq value
+    end
   end
 
-  example 'mset / mget' do
+  example 'mset/mget' do
     k1 = 'gog'
     v1 = 'google'
     k2 = 'yah'
@@ -44,7 +46,7 @@ RSpec.describe self do
     example 'hset' do
       # $redis.hset(user: 'eric', name: 'Eric Raymomd', password: 's3cr3t')
       $redis.hmset('user:eric', :name, 'Eric Raymomd', :password, 's3cr3t')
-      expected = { user: 'eric', name: 'Eric Raymomd', password: 's3cr3t' }
+      # expected = { user: 'eric', name: 'Eric Raymomd', password: 's3cr3t' }
       actual = $redis.hvals('user:eric')
       expected_vals = ['Eric Raymomd', 's3cr3t']
       expect(actual).to eq expected_vals
@@ -72,6 +74,23 @@ RSpec.describe self do
       $redis.lpush(key, 'baz')
       result = $redis.lrange(key, 0, -1)
       expect(result).to eq ['baz', 'bar', 'foo', '7wks gog  prag']
+    end
+  end
+
+  context 'stack' do
+    context 'from the left' do
+      describe 'lpop' do
+        example 'pops from the left' do
+          key = 'strange:loop'
+          $redis.lpush(key, 'foo')
+          $redis.lpush(key, 'bar')
+          $redis.lpush(key, 'baz')
+          expect($redis.lpop(key)).to eq 'baz'
+          expect($redis.lpop(key)).to eq 'bar'
+          expect($redis.lpop(key)).to eq 'foo'
+          expect($redis.lpop(key)).to be nil
+        end
+      end
     end
   end
 end

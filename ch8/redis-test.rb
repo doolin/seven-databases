@@ -93,4 +93,23 @@ RSpec.describe self do
       end
     end
   end
+
+  context 'blocking lists p. 268' do
+    $pub = Redis.new(host: '127.0.0.1', port: 6379)
+    $pub.flushall
+    $sub = Redis.new(host: '127.0.0.1', port: 6379)
+    $sub.flushall
+
+    # This isn't working, and I'm not sure quite how to get it to work
+    # other than forking a process.
+    xexample 'pop a commemt' do
+      # t = Thread.new do
+        expect($sub.brpop('comments', 5)).to eq('foo')
+      # end
+      $pub.lpush('comments', 'prag is great')
+      Thread.kill(t)
+    end
+
+
+  end
 end

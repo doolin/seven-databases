@@ -109,7 +109,19 @@ RSpec.describe self do
       $pub.lpush('comments', 'prag is great')
       Thread.kill(t)
     end
+  end
 
+  context 'sets' do
+    describe 'sadd and smember' do
+      example 'add two elements to a set' do
+        vals = ['nytimes' , 'pragprog', 'wapo']
+        result = $redis.sadd('news', vals) #vals.join(' '))
+        # expect(result).to be true
+        expect(result).to be 3
 
+        news = $redis.smembers('news')
+        expect(news).to eq vals.reverse
+      end
+    end
   end
 end

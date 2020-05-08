@@ -112,6 +112,8 @@ RSpec.describe self do
   end
 
   context 'sets' do
+    before { $redis.flushall }
+
     describe 'sadd and smember' do
       example 'add two elements to a set' do
         vals = ['nytimes' , 'pragprog', 'wapo']
@@ -121,6 +123,39 @@ RSpec.describe self do
 
         news = $redis.smembers('news')
         expect(news).to eq vals.reverse
+      end
+    end
+
+    describe 'sinter, sdiff, sunion, sunionstore' do
+      example 'add two elements to a set' do
+        news_vals = ['nytimes' , 'pragprog']
+        news = 'news'
+        result = $redis.sadd(news, news_vals) #vals.join(' '))
+        # expect(result).to be true
+        expect(result).to be 2
+
+        tech = 'tech'
+        tech_vals = ['wired' , 'pragprog']
+        result = $redis.sadd(tech, tech_vals) #vals.join(' '))
+        expect(result).to be 2
+
+        sinter = $redis.sinter(news, tech)
+        expect(sinter).to eq ['pragprog']
+
+        sdiff = $redis.sdiff(news, tech)
+        expect(sdiff).to eq ['nytimes']
+
+        sdiff = $redis.sdiff(tech, news)
+        expect(sdiff).to eq ['wired']
+
+        sunion = $redis.sunion(news, tech)
+        expect(sunion).to eq ['wired', 'pragprog', 'nytimes']
+
+        sunion = $redis.sunion(tech, news)
+        expect(sunion).to eq ['wired', 'pragprog', 'nytimes']
+
+        result = $redis.sunionstore('websites', news, tech)
+        expect($redis.smembers('websites')).to eq ["wired", "pragprog", "nytimes"]
       end
     end
   end

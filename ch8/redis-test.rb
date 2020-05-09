@@ -158,5 +158,21 @@ RSpec.describe self do
         expect($redis.smembers('websites')).to eq ["wired", "pragprog", "nytimes"]
       end
     end
+
+    context 'sorted sets' do
+      # https://www.rubydoc.info/gems/redis/Redis#zadd-instance_method
+      describe 'zadd' do
+        example 'count visits' do
+          result = $redis.zadd('visits',  500, 'wks') # 9 gog 9999 pragprog')
+          expect(result).to be true
+
+          result = $redis.zadd('visits',  [[9, 'gog'], [9999, 'prag']])
+          expect(result).to be 2
+
+          result = $redis.zincrby('visits', 1, 'prag')
+          expect(result).to eq 10000.0
+        end
+      end
+    end
   end
 end

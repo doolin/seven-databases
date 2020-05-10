@@ -3,6 +3,7 @@
 
 require 'redis'
 require 'rspec/autorun'
+require 'pry'
 
 $redis = Redis.new(host: '127.0.0.1', port: 6379)
 $redis.flushall
@@ -115,32 +116,32 @@ RSpec.describe self do
     before { $redis.flushall }
 
     describe 'sadd and smember' do
-      example 'add two elements to a set' do
+      example 'add three elements to a set' do
+        $redis.flushall
         vals = ['nytimes' , 'pragprog', 'wapo']
-        result = $redis.sadd('news', vals) #vals.join(' '))
-        # expect(result).to be true
+        result = $redis.sadd('news', vals)
         expect(result).to be 3
 
-        news = $redis.smembers('news')
-        expect(news).to eq vals.reverse
+        actual = $redis.smembers('news')
+        expect(actual).to contain_exactly(*vals)
       end
     end
 
     describe 'sinter, sdiff, sunion, sunionstore' do
       example 'add two elements to a set' do
-        news_vals = ['nytimes' , 'pragprog']
+        news_vals = ['nytimes' , 'prag']
         news = 'news'
         result = $redis.sadd(news, news_vals) #vals.join(' '))
         # expect(result).to be true
         expect(result).to be 2
 
         tech = 'tech'
-        tech_vals = ['wired' , 'pragprog']
+        tech_vals = ['wired' , 'prag']
         result = $redis.sadd(tech, tech_vals) #vals.join(' '))
         expect(result).to be 2
 
         sinter = $redis.sinter(news, tech)
-        expect(sinter).to eq ['pragprog']
+        expect(sinter).to eq ['prag']
 
         sdiff = $redis.sdiff(news, tech)
         expect(sdiff).to eq ['nytimes']
@@ -149,13 +150,13 @@ RSpec.describe self do
         expect(sdiff).to eq ['wired']
 
         sunion = $redis.sunion(news, tech)
-        expect(sunion).to eq ['wired', 'pragprog', 'nytimes']
+        expect(sunion).to eq ['prag', 'wired', 'nytimes']
 
         sunion = $redis.sunion(tech, news)
-        expect(sunion).to eq ['wired', 'pragprog', 'nytimes']
+        expect(sunion).to eq ['prag', 'wired', 'nytimes']
 
         result = $redis.sunionstore('websites', news, tech)
-        expect($redis.smembers('websites')).to eq ["wired", "pragprog", "nytimes"]
+        expect($redis.smembers('websites')).to eq ["prag", "wired", "nytimes"]
       end
     end
 
@@ -171,6 +172,23 @@ RSpec.describe self do
 
           result = $redis.zincrby('visits', 1, 'prag')
           expect(result).to eq 10000.0
+        end
+      end
+    end
+
+    context 'ranges' do
+      describe 'zrange' do
+        example 'extract first 2' do
+          $redis.flushall
+
+          result = $redis.zadd('visits',  500, 'wks') # 9 gog 9999 pragprog')
+          expect(result).to be true
+
+          result = $redis.zadd('visits',  [[9, 'gog'], [9999, 'prag']])
+          expect(result).to be 2
+
+          result = $redis.zrange('visits', 0, 1)
+          expect(result).to eq ['gog', 'wks']
         end
       end
     end

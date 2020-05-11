@@ -149,14 +149,18 @@ RSpec.describe self do
         sdiff = $redis.sdiff(tech, news)
         expect(sdiff).to eq ['wired']
 
+        work = ["wired", "nytimes", "prag"]
         sunion = $redis.sunion(news, tech)
-        expect(sunion).to eq ['prag', 'wired', 'nytimes']
+        # expect(sunion).to eq ['prag', 'wired', 'nytimes'] # works on home mac
+        expect(sunion).to eq work # works on work mac
 
         sunion = $redis.sunion(tech, news)
-        expect(sunion).to eq ['prag', 'wired', 'nytimes']
+        # expect(sunion).to eq ['prag', 'wired', 'nytimes']
+        expect(sunion).to eq work # works on work mac
 
         result = $redis.sunionstore('websites', news, tech)
-        expect($redis.smembers('websites')).to eq ["prag", "wired", "nytimes"]
+        # expect($redis.smembers('websites')).to eq ["prag", "wired", "nytimes"]
+        expect($redis.smembers('websites')).to eq work
       end
     end
 
@@ -189,6 +193,10 @@ RSpec.describe self do
 
           result = $redis.zrange('visits', 0, 1)
           expect(result).to eq ['gog', 'wks']
+
+          result = $redis.zrevrange('visits', 0, -1, with_scores: true)
+          expected =  [["prag", 9999.0], ["wks", 500.0], ["gog", 9.0]]
+          expect(result).to eq expected
         end
       end
     end

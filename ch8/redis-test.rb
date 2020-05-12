@@ -197,7 +197,19 @@ RSpec.describe self do
           result = $redis.zrevrange('visits', 0, -1, with_scores: true)
           expected =  [["prag", 9999.0], ["wks", 500.0], ["gog", 9.0]]
           expect(result).to eq expected
+
+          result = $redis.zrangebyscore('visits', 9, 10_001)
+          expect(result).to eq ["gog", "wks", "prag"]
         end
+      end
+    end
+  end
+
+  context 'unions' do
+    describe 'zunionstore' do
+      example 'from book p. 271' do
+        result = $redis.zadd('votes', [[2, 'wks'], [0, 'gog'], [9001, 'prag']])
+        expect(result).to be 3
       end
     end
   end

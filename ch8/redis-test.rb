@@ -105,7 +105,7 @@ RSpec.describe self do
     # other than forking a process.
     xexample 'pop a commemt' do
       # t = Thread.new do
-        expect($sub.brpop('comments', 5)).to eq('foo')
+      expect($sub.brpop('comments', 5)).to eq('foo')
       # end
       $pub.lpush('comments', 'prag is great')
       Thread.kill(t)
@@ -118,7 +118,7 @@ RSpec.describe self do
     describe 'sadd and smember' do
       example 'add three elements to a set' do
         $redis.flushall
-        vals = ['nytimes' , 'pragprog', 'wapo']
+        vals = %w[nytimes pragprog wapo]
         result = $redis.sadd('news', vals)
         expect(result).to be 3
 
@@ -129,15 +129,15 @@ RSpec.describe self do
 
     describe 'sinter, sdiff, sunion, sunionstore' do
       example 'add two elements to a set' do
-        news_vals = ['nytimes' , 'prag']
+        news_vals = %w[nytimes prag]
         news = 'news'
-        result = $redis.sadd(news, news_vals) #vals.join(' '))
+        result = $redis.sadd(news, news_vals) # vals.join(' '))
         # expect(result).to be true
         expect(result).to be 2
 
         tech = 'tech'
-        tech_vals = ['wired' , 'prag']
-        result = $redis.sadd(tech, tech_vals) #vals.join(' '))
+        tech_vals = %w[wired prag]
+        result = $redis.sadd(tech, tech_vals) # vals.join(' '))
         expect(result).to be 2
 
         sinter = $redis.sinter(news, tech)
@@ -149,7 +149,7 @@ RSpec.describe self do
         sdiff = $redis.sdiff(tech, news)
         expect(sdiff).to eq ['wired']
 
-        work = ["wired", "nytimes", "prag"]
+        work = %w[wired nytimes prag]
         sunion = $redis.sunion(news, tech)
         # expect(sunion).to eq ['prag', 'wired', 'nytimes'] # works on home mac
         expect(sunion).to eq work # works on work mac
@@ -168,14 +168,14 @@ RSpec.describe self do
       # https://www.rubydoc.info/gems/redis/Redis#zadd-instance_method
       describe 'zadd' do
         example 'count visits' do
-          result = $redis.zadd('visits',  500, 'wks') # 9 gog 9999 pragprog')
+          result = $redis.zadd('visits', 500, 'wks') # 9 gog 9999 pragprog')
           expect(result).to be true
 
-          result = $redis.zadd('visits',  [[9, 'gog'], [9999, 'prag']])
+          result = $redis.zadd('visits', [[9, 'gog'], [9999, 'prag']])
           expect(result).to be 2
 
           result = $redis.zincrby('visits', 1, 'prag')
-          expect(result).to eq 10000.0
+          expect(result).to eq 10_000.0
         end
       end
     end
@@ -185,21 +185,21 @@ RSpec.describe self do
         example 'extract first 2' do
           $redis.flushall
 
-          result = $redis.zadd('visits',  500, 'wks') # 9 gog 9999 pragprog')
+          result = $redis.zadd('visits', 500, 'wks') # 9 gog 9999 pragprog')
           expect(result).to be true
 
-          result = $redis.zadd('visits',  [[9, 'gog'], [9999, 'prag']])
+          result = $redis.zadd('visits', [[9, 'gog'], [9999, 'prag']])
           expect(result).to be 2
 
           result = $redis.zrange('visits', 0, 1)
-          expect(result).to eq ['gog', 'wks']
+          expect(result).to eq %w[gog wks]
 
           result = $redis.zrevrange('visits', 0, -1, with_scores: true)
-          expected =  [["prag", 9999.0], ["wks", 500.0], ["gog", 9.0]]
+          expected = [['prag', 9999.0], ['wks', 500.0], ['gog', 9.0]]
           expect(result).to eq expected
 
           result = $redis.zrangebyscore('visits', 9, 10_001)
-          expect(result).to eq ["gog", "wks", "prag"]
+          expect(result).to eq %w[gog wks prag]
         end
       end
     end

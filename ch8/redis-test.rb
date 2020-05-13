@@ -210,6 +210,20 @@ RSpec.describe self do
       example 'from book p. 271' do
         result = $redis.zadd('votes', [[2, 'wks'], [0, 'gog'], [9001, 'prag']])
         expect(result).to be 3
+
+        result = $redis.zunionstore(
+          'importance',
+          %w[visits votes],
+          weights: [1.0, 2.0],
+          aggregate: 'sum'
+        )
+
+        expect(result).to eq 3
+
+        # https://www.rubydoc.info/gems/redis/Redis:zrangebyscore
+        result = $redis.zrangebyscore('importance', '-inf', '+inf', with_scores: true)
+        expected = [['gog', 9.0], ['wks', 504.0], ['prag', 28_001.0]]
+        expect(result).to eq expected
       end
     end
   end

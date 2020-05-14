@@ -227,4 +227,19 @@ RSpec.describe self do
       end
     end
   end
+
+  context 'expiry: delete a k-v after a certain period of time' do
+    describe 'expire' do
+      example 'delete a key after 2 second' do
+        $redis.set('ice', "I'm melting...")
+        expect($redis.exists('ice')).to be true
+
+        result = $redis.expire('ice', 1)
+        expect(result).to be true
+        sleep 1.1
+        expect($redis.exists('ice')).to be false
+
+      end
+    end
+  end
 end

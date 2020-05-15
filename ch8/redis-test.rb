@@ -238,7 +238,38 @@ RSpec.describe self do
         expect(result).to be true
         sleep 1.1
         expect($redis.exists('ice')).to be false
+      end
+    end
+  end
 
+  context 'database namespaces' do
+    let(:greeting) { 'greeting' }
+
+    describe 'select' do
+      example 'same key, different databases' do
+        $redis.set(greeting, 'hello')
+        result = $redis.get(greeting)
+        expect(result).to eq 'hello'
+
+        result = $redis.select(1)
+        expect(result).to eq 'OK'
+        result = $redis.get(greeting)
+        expect(result).to be nil
+        result = $redis.set(greeting, 'hola')
+        expect(result).to eq 'OK'
+        result = $redis.select(0)
+        expect(result).to eq 'OK'
+        result = $redis.get(greeting)
+        expect(result).to eq 'hello'
+      end
+
+      example 'move key from database 0 to database 2' do
+        result = $redis.move(greeting, 2)
+        expect(result).to be true
+        result = $redis.select(2)
+        expect(result).to eq 'OK'
+        result = $redis.get(greeting)
+        expect(result).to eq 'hello'
       end
     end
   end

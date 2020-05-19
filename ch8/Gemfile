@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'bloomfilter-rb'
 gem 'cucumber'
 gem 'redis'
 gem 'rspec'

@@ -66,3 +66,16 @@ $
 Running an installed instance:
 
 * `docker run -p 5984:5984 -d couchdb`
+
+---
+
+As of 2020-05-23, the book text concerning Futon does not work with the
+brew installation I have, it does not provide the web interface Futon, I
+am unable to curl into the database as specified by the online
+documentation, and overall, I've spent roughly 45 minutes this morning
+getting exactly no progress. I may end up scrapping this book completely
+as it's very likely too far out of date to be useful.
+
+
+
+
